@@ -8,8 +8,6 @@
 
 #define MAX_PROC 512
 
-typedef int endpoint_t;
-
 typedef struct proc_pair{
     endpoint_t source;
     endpoint_t target;

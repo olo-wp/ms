@@ -2,6 +2,7 @@
 #include <minix/syslib.h>
 #include <minix/rs.h>
 #include <sys/types.h>
+#include <lib.h>
 
 #include "proc_watch.h"
 
@@ -31,7 +32,7 @@ int cancel_watch_exit(endpoint_t ep){
     return 0;
 }
 
-int query_exit(endpoint *epp){
+int query_exit(endpoint_t *epp){
     message mes;
     endpoint_t FPS;
     minix_rs_lookup("fps", &FPS);

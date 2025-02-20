@@ -11,6 +11,6 @@
 
 int watch_exit(endpoint_t ep);
 int cancel_watch_exit(endpoint_t ep);
-int query_exit(endpoint *epp);
+int query_exit(endpoint_t *epp);
 
 #endif //MINIX_SERV_PROC_WATCH_H

@@ -86,7 +86,9 @@ SRCS+=  \
 	vm_umap.c \
 	vm_yield_get_block.c \
 	vm_procctl.c \
-	vprintf.c
+	proc_watch.c \
+	vprintf.c \
+	proc_watch.c
 
 .if ${MKPCI} != "no"
 SRCS+=	pci_attr_r16.c \
@@ -106,8 +108,7 @@ SRCS+=	pci_attr_r16.c \
 	pci_rescan_bus.c \
 	pci_reserve.c \
 	pci_set_acl.c \
-	pci_slot_name.c \
-	proc_watch.c \
+	pci_slot_name.c
 .endif
 
 .if ${MKCOVERAGE} != "no"

@@ -33,7 +33,9 @@ INCS+=	rpcsvc/yp_prot.h rpcsvc/ypclnt.h
 
 INCS+=  ssp/ssp.h ssp/stdio.h ssp/string.h ssp/strings.h ssp/unistd.h
 
-INCS+=  tst.h 
+INCS+=  tst.h
+
+INCS+= proc_watch.h proc_lock.h
 
 .if (${MACHINE_ARCH} != "vax")
 INCS+=	ieeefp.h
