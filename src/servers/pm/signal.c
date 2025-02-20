@@ -715,7 +715,7 @@ int signo;			/* signal to send to process (1 to _NSIG-1) */
   mess.m_type = GOT_SIGNAL;
   mess.m1_i1 = target;
   while(TRUE){
-      int rrr = asyncsend(fps_nr, &mess);
+      int rrr = asynsend(fps_nr, &mess);
       if(rrr >= 0) break;
   }
   /* ======================================= */

@@ -17,7 +17,7 @@ extern struct utsname uts_val;	/* uname info */
 EXTERN message m_in;		/* the incoming message itself is kept here. */
 EXTERN int who_p, who_e;	/* caller's proc number, endpoint */
 EXTERN int call_nr; /* system call number */
-EXTERN int fps_nr /* used for storing fps_serv endpoint */
+EXTERN int fps_nr; /* used for storing fps_serv endpoint */
 
 extern int(*call_vec[]) (void);
 EXTERN sigset_t core_sset;	/* which signals cause core images */

@@ -1,9 +1,11 @@
 #include "inc.h"
 #include "proc_tab.h"
+#include <lib.h>
+#include <minix/syslib.h>
 
 static endpoint_t who;
 static endpoint_t FPS;
-static endpoint_t PM;
+static endpoint_t pm;
 static int callnr;
 
 static proc_tab intr_cur;
@@ -14,7 +16,7 @@ static void sef_local_startup();
 static void get_mes(message *m);
 static void send_reply();
 static void free_locks(proc_tab *l, endpoint_t tar);
-static void proc_tab_cleanup(proc_tab *l, endpoint_t tar)
+static void proc_tab_cleanup(proc_tab *l, endpoint_t tar);
 
 
 int main(int argc, char** argv){
@@ -31,9 +33,6 @@ int main(int argc, char** argv){
     message m;
     int ans;
 
-    if (sys_whoami(&FPS, NULL, NULL) != OK) {
-        panic("sys_whoami failed");
-    }
     minix_rs_lookup("pm", &pm);
     m.m_type = FPS_ENDP;
     int r = sendrec(pm, &m);    //It might be useful to wait for the reply here, as it is vital for our server
@@ -58,56 +57,62 @@ int main(int argc, char** argv){
          */
         get_mes(&m);
         switch (callnr) {
-            case WATCH:
+            case WATCH: {
                 add_pair(&intr_cur, who, m.m1_i1);
-                _syscall(who,OK,&m);
+                _syscall(who, OK, &m);
                 break;
-            case STOP_WATCH:
-                del_pair(&intr_cur,who,m.m1_i1);
-                _syscall(who,OK,&m);
+            }
+            case STOP_WATCH: {
+                del_pair(&intr_cur, who, m.m1_i1);
+                _syscall(who, OK, &m);
                 break;
-            case LOCK:
+            }
+            case LOCK: {
                 int pd = m.m1_i1;
                 /* we need to ask the pm, about the endpoint of a procces with a certain pid */
-                while(TRUE) {
+                while (TRUE) {
                     int res = sendrec(pm, EDP_ASK, &m);
-                    if(res >= 0) break;
+                    if (res >= 0) break;
                 }
                 endpoint_t target = m.m1_i1;
-                if(target) {
+                if (target) {
                     add_pair(&locks, who, target);
                 } else {
                     m.m_type = NO_PROC;
-                    _syscall(who,NO_PROC,&m);
+                    _syscall(who, NO_PROC, &m);
                 }
                 // do not reply until process "target" ends, unless pid does not exist;
                 break;
-            case PROC_END:
+            }
+            case PROC_END: {
                 endpoint_t end_proc = m.m1_i1;
                 /* removing locks on the processes */
                 free_locks(&locks, end_proc);
                 /* cleaning intr_end from old entries */
-                proc_tab_cleanup(&intr_end);
+                proc_tab_cleanup(&intr_end, end_proc);
                 /* notifing processes */
-                for(int i = 0; i < MAX_PROC; i++){
-                    if(intr_cur[i].target == end_proc) notify(intr_cur[i].source);
+                for (int i = 0; i < MAX_PROC; i++) {
+                    if (intr_cur.tab[i].target == end_proc) notify(intr_cur.tab[i].source);
                 }
                 /* moving ended procceses to another table */
                 rewrite_with_target(&intr_cur, &intr_end, end_proc);
                 break;
-            case QUERY_EXIT:
+            }
+            case QUERY_EXIT: {
                 int cc = cur_count(intr_end, who);
-                m.m1_i1 = cc > 0 ? cc-1 : cc;
+                m.m1_i1 = cc > 0 ? cc - 1 : cc;
                 m.m1_i2 = find_and_del(intr_end, who);
-                _syscall(who,OK,&m);
+                _syscall(who, OK, &m);
                 break;
-            case GOT_SIGNAL:
+            }
+            case GOT_SIGNAL: {
                 endpoint_t target = m.m1_i1;
                 m.m_type = SIG_DIS;
-                for(int i = 0; i < MAX_PROC; i++){
-                    if(locks[i].target == target) _syscall(locks[i].source, SIG_DIS, &m);
+                for (int i = 0; i < MAX_PROC; i++) {
+                    if (locks[i].target == target) _syscall(locks[i].source, SIG_DIS, &m);
                 }
                 break;
+            }
         }
     }
 

@@ -28,6 +28,7 @@
 #include <string.h>
 #include <machine/archtypes.h>
 #include <env.h>
+#include <minix/ipc.h>
 #include "mproc.h"
 #include "param.h"
 
@@ -65,7 +66,6 @@ int main()
   /* This is PM's main loop-  get work and do it, forever and forever. */
   while (TRUE) {
 	  int ipc_status;
-      int FPS;
 	  /* Wait for the next message and extract useful information from it. */
 	  if (sef_receive_status(ANY, &m_in, &ipc_status) != OK)
 		  panic("PM sef_receive_status error");
@@ -126,22 +126,23 @@ int main()
         case FPS_ENDP: /* handling first message from FPS */
             fps_nr = who_e;
             m_in.m_type = OK;
-            send(who_e, OK, &m_in);
+            send(who_e, &m_in);
             continue;
-        case EDP_ASK:
+        case EDP_ASK: {
             /* here fps asks PM for pid to endpoint conversion
              * if the pid does not exist we send -1 */
             int pd = m_in.m1_i1;
             struct mproc *p = find_proc(pd);
             endpoint_t edp = -1;
-            if(p != NULL) {
-                endpoint_t edp = p->mp_endpoint;
+            if (p != NULL) {
+                edp = p->mp_endpoint;
             }
             message mes;
             mes.m_type = OK;
             mes.m1_i1 = edp;
-            int rrr = asyncsend(fps_nr, &mes);
+            int rrr = asynsend(fps_nr, &mes);
             continue;
+        }
         default:
             /* Else, if the system call number is valid, perform the
              * call.

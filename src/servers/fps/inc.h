@@ -21,9 +21,7 @@
 #define EDP_ASK            3001
 
 #include <minix/sysutil.h>
-#include <minix/syslib.h>
 
-#include <minix/es.h>
 #include <minix/ipc.h>
 
 #include <unistd.h>

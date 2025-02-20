@@ -25,6 +25,7 @@
 #include <minix/vm.h>
 #include <sys/ptrace.h>
 #include <sys/resource.h>
+#include <minix/ipc.h>
 #include <signal.h>
 #include "mproc.h"
 #include "param.h"
@@ -285,9 +286,9 @@ int dump_core;			/* flag indicating whether to dump core */
   message mess;
   mess.m_type = PROC_END;
   mess.m1_i1 = proc_nr_e;
-  int rrr = asyncsend(fps_nr, &mess);
+  int rrr = asynsend(fps_nr, &mess);
   if(rrr != OK){
-      printf("end proc send fail, CODE %i", r);
+      printf("end proc send fail, CODE %i", rrr);
   }
 
   /* Remember a session leader's process group. */
