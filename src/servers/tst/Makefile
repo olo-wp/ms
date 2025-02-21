@@ -3,7 +3,7 @@ PROG=	tst
 SRCS=	main.c 
 
 DPADD+=	${LIBSYS}
-LDADD+=	-lsys
+LDADD+=	-lsys -lc
 
 MAN=
 

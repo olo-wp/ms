@@ -5,7 +5,7 @@
 #include <minix/sysutil.h>
 #include <minix/syslib.h>
 
-#include <minix/es.h>
+//#include <minix/es.h>
 
 #include <unistd.h>
 #include <errno.h>

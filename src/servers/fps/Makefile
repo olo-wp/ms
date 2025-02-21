@@ -1,9 +1,10 @@
 # Makefile for Finished Processes Server
 PROG=	fps
-SRCS=	main.c proctab.c
+SRCS=	proc_tab.c main.c
 
 DPADD+=	${LIBSYS}
-LDADD+=	-lsys
+LDADD+=	-lsys -lc
+
 
 MAN=
 

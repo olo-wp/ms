@@ -97,4 +97,4 @@ void rewrite_with_target(proc_tab *tab_1, proc_tab *tab_2, endpoint_t target){
             }
         }
     }
-};
+}

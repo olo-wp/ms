@@ -13,9 +13,15 @@ int wait_exit(pid_t p){
     mes.m1_i1 = p;
     mes.m_type = LOCK;
     int res;
+    int cnt = 0;
     while(1) {
         res = sendrec(FPS, &mes);
         if(res >= 0) break;
+        cnt++;
+        if(cnt >= 20){
+            printf("max retry exceeded \n");
+            return -100;
+        }
     }
     if(mes.m_type == NO_PROC){
         errno = ESRCH;

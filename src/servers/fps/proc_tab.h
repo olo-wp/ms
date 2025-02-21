@@ -2,11 +2,13 @@
 // Created by Olgierd Zygmunt on 18/01/2025.
 //
 #include <stdio.h>
+#include <minix/type.h>
 
 #ifndef MINIX_SERV_PROC_TAB_H
 #define MINIX_SERV_PROC_TAB_H
 
 #define MAX_PROC 512
+
 
 typedef struct proc_pair{
     endpoint_t source;
