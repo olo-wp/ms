@@ -5,6 +5,8 @@
 #include <minix/sysutil.h>
 #include <minix/syslib.h>
 
+#include "proc_watch.h"
+
 //#include <minix/es.h>
 
 #include <unistd.h>

@@ -67,22 +67,17 @@ int main(int argc, char** argv) {
             printf("FPS: sef_receive failed %d.\n", r);
         who = m.m_source;
         callnr = m.m_type;
-        if(verbose) printf("got message type %d.\n", callnr);
         switch (callnr) {
             case WATCH: {
-                if(verbose) printf("CASE watch start\n");
                 add_pair(&intr_cur, who, m.m1_i1);
-                if(verbose) printf("CASE watch tab op\n");
-                _syscall(who, OK, &m);
-                if(verbose) printf("CASE watch success\n");
+                m.m_type = OK;
+                send(who, &m);
                 break;
             }
             case STOP_WATCH: {
-                if(verbose) printf("CASE stopwatch start\n");
                 del_pair(&intr_cur, who, m.m1_i1);
-                if(verbose) printf("CASE SW tab op\n");
-                _syscall(who, OK, &m);
-                if(verbose) printf("CASE stopwatch success\n");
+                m.m_type = OK;
+                send(who, &m);
                 break;
             }
             case LOCK: {
@@ -95,7 +90,7 @@ int main(int argc, char** argv) {
                     add_pair(&locks, who, target);
                 } else {
                     m.m_type = NO_PROC;
-                    _syscall(who, NO_PROC, &m);
+                    send(who, &m);
                 }
                 // do not reply until process "target" ends, unless pid does not exist;
                 break;
@@ -115,20 +110,24 @@ int main(int argc, char** argv) {
                 break;
             }
             case QUERY_EXIT: {
-                if(verbose) printf("CASE query exit start\n");
                 int cc = cur_count(&intr_end, who);
-                m.m1_i1 = cc > 0 ? cc - 1 : cc;
+                if(verbose) printf("checking table for proc nr: %d\n", who);
+                m.m1_i1 = cc - 1;
+                if(verbose) printf("alive processes: %d\n", cc);
                 m.m1_i2 = find_and_del(&intr_end, who);
-                if(verbose) printf("CASE QE tab op\n");
-                _syscall(who, OK, &m);
-                if(verbose) printf("CASE stopwatch succes\n");
+                if(verbose) printf("returing process: %d\n", m.m1_i2);
+                m.m_type = OK;
+                send(who, &m);
                 break;
             }
             case GOT_SIGNAL: {
                 endpoint_t target = m.m1_i1;
                 m.m_type = SIG_DIS;
                 for (int i = 0; i < MAX_PROC; i++) {
-                    if (locks.t[i].target == target) _syscall(locks.t[i].source, SIG_DIS, &m);
+                    if (locks.t[i].target == target) {
+                        m.m_type = SIG_DIS;
+                        send(locks.t[i].source, &m);
+                    }
                 }
                 break;
             }
@@ -143,7 +142,7 @@ int main(int argc, char** argv) {
         free.m_type = OK;
         for(int i = 0; i < MAX_PROC; i++){
             if(l -> t[i].target == tar){
-                _syscall(l -> t[i].source, OK, &free);
+                send(l -> t[i].source, &free);
                 l -> t[i].source = -1;
                 l -> t[i].target = -1;
             }
@@ -154,6 +153,7 @@ int main(int argc, char** argv) {
         endpoint_t tar_p = _ENDPOINT_P(tar);
         for(int i = 0; i < MAX_PROC; i++){
             if(_ENDPOINT_P(l -> t[i].target) == tar_p){
+                printf("cleaning endpoint %d",l -> t[i].target);
                 l -> t[i].source = -1;
                 l -> t[i].target = -1;
             }
