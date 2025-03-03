@@ -10,7 +10,7 @@ endpoint_t pm;
 endpoint_t SELF_E;
 
 static int callnr;
-static const int verbose = 1;
+static const int verbose = -1;
 
 proc_tab intr_cur;
 proc_tab intr_end;
@@ -45,23 +45,6 @@ int main(int argc, char** argv) {
     if(verbose) printf("succesful FPS registration\n");
 
     while (TRUE) {
-        /* Skeleton:
-         * 1. we ge a message, depending on its type we either:
-         * 2. switch(type):
-         * case(WATCH) we add (sender, target) to intr_cur
-         * case(STOP_WATCH) we remove (sender, target) from intr_cur;
-         * case(LOCK) we lock sender onto target:
-         *      basically we will need to add sender, target to locks and continue,
-         *      when we know that target end we will reply all senders of that target.
-         * case(PROC_END) pm tells us that a process ends, what we need to do:
-         *      a) we move all the entries associated with (*,ended_proc) from intr_cur to intr_end
-         *      b) we remove all the locks (*, ended_proc) and send corresponding replies
-         *      c) if a process ends and there already are processes with the same endpoint in intr_end
-         *      we need to remove all such processes from intr_end
-         * case(QUERY_EXIT) we remove any entry corresponding with a given sender from intr_end,
-         * then we cout number of remaining processes connected with sender in intr_end
-         * 3. this is the main part, but we will also need to transfer signals onto locked processes
-         */
         int r;
         if ((r = sef_receive(ANY, &m)) != OK)
             printf("FPS: sef_receive failed %d.\n", r);
@@ -124,9 +107,11 @@ int main(int argc, char** argv) {
                 endpoint_t target = m.m1_i1;
                 m.m_type = SIG_DIS;
                 for (int i = 0; i < MAX_PROC; i++) {
-                    if (locks.t[i].target == target) {
+                    if (locks.t[i].source == target) {
                         m.m_type = SIG_DIS;
                         send(locks.t[i].source, &m);
+                        locks.t[i].source = -1;
+                        locks.t[i].target = -1;
                     }
                 }
                 break;

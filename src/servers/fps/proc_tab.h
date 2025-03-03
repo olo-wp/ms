@@ -7,7 +7,7 @@
 #ifndef MINIX_SERV_PROC_TAB_H
 #define MINIX_SERV_PROC_TAB_H
 
-#define MAX_PROC 512
+#define MAX_PROC 1024
 
 
 typedef struct proc_pair{
